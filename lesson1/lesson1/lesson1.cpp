@@ -1,13 +1,15 @@
-// lesson1.cpp : Defines the entry point for the console application.
-//
 
 #include "stdafx.h"
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <assert.h>
+
 using namespace std;
 
+
 template <class T>
-ostream& operator<<(ostream& o, const vector<T>& v) {
+ostream& operator << (ostream& o, const vector<T>& v) {
 	o << "[";
 	for (auto& x : v) {
 		o << x << ", ";
@@ -32,8 +34,22 @@ void test(TResult expect, TFunc f, TParam1 p1, TParam2 p2) {
 	}
 }
 
+template <class TFunc, class TResult, class TParam1, class TParam2, class TParam3, class TParam4>
+void test(TResult expect, TFunc f, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4) {
+	auto got = f(p1, p2, p3, p4);
+	cout << " f(" << p1 << ", " << p2 << ", " << p3 << ", " << p4 << ")" << endl;
+	if (got == expect) {
+		cerr << "SUCSESS: " << got << " == " << expect << endl;
+	}
+	else
+	{
+		cerr << "FAILED: " << got << " != " << expect << endl;
+	}
+	cout << endl;
+}
+
 int search_0(int v[], size_t size, int key) {
-	for (int i = 0; i < size; ++i) {
+	for (size_t i = 0; i < size; ++i) {
 		if (v[i] == key) {
 			return i;
 		}
@@ -56,7 +72,7 @@ int search_1(int v[], size_t size, int key) {
 }
 
 int search_2(const std::vector<int>& v, int key) {
-	for (int i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); ++i) {
 		if (v[i] == key) {
 			return i;
 		}
@@ -65,51 +81,143 @@ int search_2(const std::vector<int>& v, int key) {
 	return -1;
 }
 
-int search_3(std::vector<int>& v, int key) {
-	v.push_back(key);
-	int i = 0;
-	while (v[i] != key) {
-		++i;
-	}
-	v.pop_back();
+/*int search_3(std::vector<int>& v, int key) {
+v.push_back(key);
+int i = 0;
+while (v[i] != key) {
+++i;
+}
+v.pop_back();
+if (i != v.size()) {
+return i;
+}
+return -1;
+}*/
 
-	if (i != v.size()) {
-		return i;
+void test_search() {
+
+	typedef std::vector<int> Array;
+
+	auto search = search_2;
+
+	auto key = 8;
+	// key not exists in array
+	test(-1, search, Array(), key); // degerate
+	test(-1, search, Array({ key - 1 }), key); // trivial
+	test(-1, search, Array({ key - 1, key + 1 }), key); // trivial2
+	test(-1, search, Array({ 1,2,3,4,5,7 }), key); // general
+	test(-1, search, Array({ 9,10,11,12 }), key); // general
+	test(-1, search, Array({ 4,1,2,7,10 }), key); // general
+												  // key exists in array
+												  // non appliable // degerate
+	test(0, search, Array({ key }), key); // trivial
+	test(0, search, Array({ key, key + 1 }), key); // trivial2
+	test(1, search, Array({ key - 1, key }), key); // trivial2
+	test(8, search, Array({ 0,1,2,3,4,5,6,7,key }), key); // general
+	test(0, search, Array({ key, 9,10,11,12 }), key); // general
+	test(2, search, Array({ 4,1,key,7,10 }), key); // general                
+
+												   //test(0, search, Array({ key,1,key,7,10 }), key); // general                
+												   //test(2, search, Array({ 2,1,key,7,key }), key); // general                
+}
+
+
+int binary_search_helper
+(
+	const  vector<int>& v,
+	size_t begin,
+	size_t end,
+	int key
+)
+{
+	assert(std::is_sorted(v.begin(), v.end()));
+	if (begin < end)
+	{
+
+		// [b, e) = [b, m) U [m] U [m, e)
+		size_t m = (begin + end) / 2;
+		assert((m - begin) + (end - m) == (end - begin));
+		if (key < v[m]) {
+			return binary_search_helper(v, begin, m, key);
+		}
+		else if (v[m] < key) {
+			return binary_search_helper(v, m + 1, end, key);
+		}
+		else {
+			return m;
+		}
 	}
 
 	return -1;
 }
 
+int binary_search
+(
+	const  vector<int>& v,
+	int key
+)
+{
+	assert(std::is_sorted(v.begin(), v.end()));
 
-void test_search() {
+	size_t begin = 0;
+	size_t end = v.size();
 
-	typedef vector<int> Array;
+	while (begin < end)
+	{
+		// [b, e) = [b, m) U [m] U [m, e)
+		size_t m = begin + (end - begin) / 2;
+		if (key < v[m]) {
+			end = m;
+		}
+		else if (v[m] < key) {
+			begin = m + 1;
+		}
+		else {
+			return m;
+		}
+	}
 
-	auto search = search_2;
-	auto key = 8;
-
-	// key not exists in array
-	test(-1, search, Array(), key); // degerate
-	test(-1, search, Array({ key - 1 }), key); // trivial
-	test(-1, search, Array({ key - 1, key + 1 }), key); // trivial
-	test(-1, search, Array({ 1, 2, 3, 4, 5, 7 }), key); // general
-	test(-1, search, Array({ 9, 10, 11, 12 }), key); // general
-	test(-1, search, Array({ 4, 1, 2, 7, 10 }), key); // general
-	// key exists in array
-	// non appliable // degerate
-	test(0, search, Array({ key - 1 }), key); // trivial
-	test(0, search, Array({ key - 1, key + 1 }), key); // trivial
-	test(-1, search, Array({ 1, 2, 3, 4, 5, 7 }), key); // general
-	test(-1, search, Array({ 9, 10, 11, 12 }), key); // general
-	test(-1, search, Array({ 4, 1, 2, 7, 10 }), key); // general
-
-	//test(6, search_2, Array({ 0,1,2,3,4,5,6,7,8 }), 8);
+	return -1;
 }
 
+void test_binary_search()
+{
+	typedef std::vector<int> Array;
+
+	int key = 8;
+
+	// key not exists in array
+	cout << " ----- key not exists in array ----- " << endl << endl;
+	test(-1, binary_search_helper, Array(), 0, 0, key); // degerate
+	test(-1, binary_search_helper, Array({ key - 1 }), 0, 0, key); // trivial
+	test(-1, binary_search_helper, Array({ key - 1, key + 1 }), 0, 0, key); // trivial2
+	test(-1, binary_search_helper, Array({ 1, 2, 3, 4, 5, 7 }), 0, 6, key); // general
+	test(-1, binary_search_helper, Array({ 9, 10, 11, 12 }), 0, 4, key); // general
+	test(-1, binary_search_helper, Array({ 1, 2, 4, 7, 10 }), 0, 5, key); // general
+
+	// key exists in array
+	cout << " ----- key exists in array ----- " << endl << endl;
+	// non appliable // degerate
+	test(0, binary_search_helper, Array({ key }), 0, 1, key); // trivial
+	test(0, binary_search_helper, Array({ key, key + 1 }), 0, 2, key); // trivial2
+	test(1, binary_search_helper, Array({ key - 1, key }), 0, 2, key); // trivial3
+	test(8, binary_search_helper, Array({ 0, 1, 2, 3, 4, 5, 6, 7, key }), 0, 9, key); // general
+	test(0, binary_search_helper, Array({ key, 9, 10, 11, 12 }), 0, 5, key); // general
+	test(3, binary_search_helper, Array({ 1, 4, 7, key, 10 }), 0, 5, key); // general
+
+	// key exists in array
+	cout << " ----- other ----- " << endl << endl;
+	test(-1, binary_search_helper, Array({ 5, 6, 7 }), 0, 1, key); // trivial
+
+	//vector<int> arr({ 0, 1, 3, 5, 9, 11, 15, 20, 22 });
+	//test(1, binary_search_helper, arr, 0, 9, 1);
+}
 
 int main(int argc, char const *argv[])
 {
-	test_search();
+	//test_search();
+	test_binary_search();
+
 	system("pause");
 	return 0;
 }
