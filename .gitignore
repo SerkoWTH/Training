@@ -16,3 +16,4 @@ lesson1/lesson1/lesson1.vcxproj.filters
 lesson1/lesson1/stdafx.cpp
 lesson1/lesson1/stdafx.h
 lesson1/lesson1/targetver.h
+*.ipch
