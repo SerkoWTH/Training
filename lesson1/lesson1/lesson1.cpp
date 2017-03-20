@@ -34,6 +34,20 @@ void test(TResult expect, TFunc f, TParam1 p1, TParam2 p2) {
    }
 }
 
+template <class TFunc, class TResult, class TParam1, class TParam2, class TParam3, class TParam4>
+void test(TResult expect, TFunc f, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4) {
+   auto got = f(p1, p2, p3, p4);
+   cout << " f(" << p1 << ", " << p2 << ", " << p3 << ", " << p4 << ")" << endl;
+   if (got == expect) {
+      cerr << "SUCSESS: " << got << " == " << expect << endl;
+   }
+   else
+   {
+      cerr << "FAILED: " << got << " != " << expect << endl;
+   }
+   cout << endl;
+}
+
 int search_0(int v[], size_t size, int key) {
    for (size_t i = 0; i < size; ++i) {
       if (v[i] == key) {
@@ -121,6 +135,9 @@ int binary_search_helper
    assert(std::is_sorted(v.begin(), v.end()));
 
    if (begin == end) return -1;
+   if (begin < 0 || end > v.size()) return -1;
+   if (begin > end) return -1;
+
    if (end - begin == 1) {
       if (v[begin] == key)
          return begin;
@@ -144,14 +161,36 @@ int binary_search_helper
 
 void test_binary_search()
 {
+   typedef std::vector<int> Array;
 
+   int key = 8;
+
+   // key not exists in array
+   cout << " ----- key not exists in array ----- " << endl << endl;
+   test(-1, binary_search_helper, Array(), 0, 0, key); // degerate
+   test(-1, binary_search_helper, Array({ key - 1 }), 0, 0, key); // trivial
+   test(-1, binary_search_helper, Array({ key - 1, key + 1 }), 0, 0, key); // trivial2
+   test(-1, binary_search_helper, Array({ 1, 2, 3, 4, 5, 7 }), 0, 6, key); // general
+   test(-1, binary_search_helper, Array({ 9, 10, 11, 12 }), 0, 4, key); // general
+   test(-1, binary_search_helper, Array({ 1, 2, 4, 7, 10 }), 0, 5, key); // general
+   // key exists in array
+   cout << " ----- key exists in array ----- " << endl << endl;
+   // non appliable // degerate
+   test(0, binary_search_helper, Array({ key }), 0, 1, key); // trivial
+   test(0, binary_search_helper, Array({ key, key + 1 }), 0, 2, key); // trivial2
+   test(1, binary_search_helper, Array({ key - 1, key }), 0, 2, key); // trivial3
+   test(8, binary_search_helper, Array({ 0, 1, 2, 3, 4, 5, 6, 7, key }), 0, 9, key); // general
+   test(0, binary_search_helper, Array({ key, 9, 10, 11, 12 }), 0, 5, key); // general
+   test(3, binary_search_helper, Array({ 1, 4, 7, key, 10 }), 0, 5, key); // general
+
+   //vector<int> arr({ 0, 1, 3, 5, 9, 11, 15, 20, 22 });
+   //test(1, binary_search_helper, arr, 0, 9, 1);
 }
 
 int main(int argc, char const *argv[])
 {
    //test_search();
-
-
+   test_binary_search();
 
    system("pause");
    return 0;
