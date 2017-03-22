@@ -213,10 +213,84 @@ void test_binary_search()
 	//test(1, binary_search_helper, arr, 0, 9, 1);
 }
 
+
+int* lower_bound(int* begin, int* end, int key)
+{
+	int* b = begin;
+	int* e = end;
+	int* m;
+
+	while (e - b > 1)
+	{
+		m = b + (e - b) / 2;
+		if (key < *m)
+			e = m;
+		else
+			b = m;
+	}
+
+	return b;
+}
+int* binary_search_lb(int* begin, int* end, int key)
+{
+	int* first = lower_bound(begin, end, key);
+	//dreturn 
+
+
+	/*
+	return (_First != _Last && !_Pred(_Val, *_First));
+	*/
+}
+void test_binary_search_lb()
+{
+
+
+
+	//binary_search
+	/***/
+	//int tmp0[] = { 1, 4, 8, 8, 8, 10 };
+	//lower_bound(tmp0, tmp0 + 5, 8);
+	int tmp1[] = { 1, 4, 7, 8, 10 };
+	lower_bound(tmp1, tmp1 + 5, 8);
+	int tmp2[] = { 1, 4, 7, 8, 10, 11 };
+	lower_bound(tmp2, tmp2 + 6, 8);
+	/***/
+
+
+
+
+	typedef std::vector<int> Array;
+	//auto search = [](const vector<int>)
+
+	int key = 8;
+
+	/*
+	// key not exists in array
+	cout << " ----- key not exists in array ----- " << endl << endl;
+	test(-1, binary_search_helper, Array(), 0, 0, key); // degerate
+	test(-1, binary_search_helper, Array({ key - 1 }), 0, 0, key); // trivial
+	test(-1, binary_search_helper, Array({ key - 1, key + 1 }), 0, 0, key); // trivial2
+	test(-1, binary_search_helper, Array({ 1, 2, 3, 4, 5, 7 }), 0, 6, key); // general
+	test(-1, binary_search_helper, Array({ 9, 10, 11, 12 }), 0, 4, key); // general
+	test(-1, binary_search_helper, Array({ 1, 2, 4, 7, 10 }), 0, 5, key); // general
+
+																		  // key exists in array
+	cout << " ----- key exists in array ----- " << endl << endl;
+	// non appliable // degerate
+	test(0, binary_search_helper, Array({ key }), 0, 1, key); // trivial
+	test(0, binary_search_helper, Array({ key, key + 1 }), 0, 2, key); // trivial2
+	test(1, binary_search_helper, Array({ key - 1, key }), 0, 2, key); // trivial3
+	test(8, binary_search_helper, Array({ 0, 1, 2, 3, 4, 5, 6, 7, key }), 0, 9, key); // general
+	test(0, binary_search_helper, Array({ key, 9, 10, 11, 12 }), 0, 5, key); // general
+	test(3, binary_search_helper, Array({ 1, 4, 7, key, 10 }), 0, 5, key); // general
+	*/
+}
+
 int main(int argc, char const *argv[])
 {
 	//test_search();
-	test_binary_search();
+	//test_binary_search();
+	test_binary_search_lb();
 
 	system("pause");
 	return 0;
